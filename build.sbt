@@ -19,6 +19,7 @@ import Dependencies._
 
 lazy val root = (project in file("."))
   .settings(name := "kamon-influxdb")
+  .settings(version := kamonVersion + "-SNAPSHOT")
   .settings(basicSettings: _*)
   .settings(formatSettings: _*)
   .settings(
