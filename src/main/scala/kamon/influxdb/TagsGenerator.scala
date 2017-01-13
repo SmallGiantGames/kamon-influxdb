@@ -60,7 +60,8 @@ trait TagsGenerator {
     val defaults = Map(
       "lower" -> BigDecimal(hs.min),
       "mean" -> average(hs),
-      "upper" -> BigDecimal(hs.max))
+      "upper" -> BigDecimal(hs.max),
+      "measurements" -> BigDecimal(hs.numberOfMeasurements))
 
     percentiles.foldLeft(defaults) { (acc, p) ⇒
       val fractional = p % 1

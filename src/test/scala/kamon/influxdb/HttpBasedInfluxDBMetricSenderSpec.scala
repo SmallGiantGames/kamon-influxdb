@@ -111,7 +111,7 @@ class HttpBasedInfluxDBMetricSenderSpec extends BaseKamonSpec("udp-based-influxd
       testRecorder.histogramOne.record(5L)
 
       val http = setup(Map(testEntity -> testRecorder.collect(collectionContext)))
-      val expectedMessage = s"kamon-timers,category=test,entity=user-kamon,hostname=$hostName,metric=metric-one mean=7.5,lower=5,upper=10,p70.5=10,p50=5 ${from.millis * 1000000}"
+      val expectedMessage = s"kamon-timers,category=test,entity=user-kamon,hostname=$hostName,metric=metric-one measurements=2,mean=7.5,lower=5,upper=10,p70.5=10,p50=5 ${from.millis * 1000000}"
 
       val request = getHttpRequest(http)
       val requestData = request.entity.asString.split("\n")
