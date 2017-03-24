@@ -39,6 +39,7 @@ trait TagsGenerator {
   }
 
   protected val percentiles = config.getDoubleList("percentiles").toList
+  protected val includeMeasurements = config.getBoolean("includeMeasurements")
 
   protected def generateTags(entity: Entity, metricKey: MetricKey): Map[String, String] =
     entity.category match {
@@ -57,11 +58,13 @@ trait TagsGenerator {
     }
 
   protected def histogramValues(hs: Histogram.Snapshot): Map[String, BigDecimal] = {
+    val measurements =
+      if (includeMeasurements) Map("measurements" -> BigDecimal(hs.numberOfMeasurements))
+      else Map.empty
     val defaults = Map(
       "lower" -> BigDecimal(hs.min),
       "mean" -> average(hs),
-      "upper" -> BigDecimal(hs.max),
-      "measurements" -> BigDecimal(hs.numberOfMeasurements))
+      "upper" -> BigDecimal(hs.max)) ++ measurements
 
     percentiles.foldLeft(defaults) { (acc, p) ⇒
       val fractional = p % 1
