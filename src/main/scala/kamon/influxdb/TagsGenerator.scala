@@ -55,8 +55,9 @@ trait TagsGenerator {
       "entity" -> normalize(entity.name),
       "hostname" -> normalize(hostname),
       "metric" -> normalize(metricKey.name))
-    if (extraTags.isEmpty && entity.tags.isEmpty) Map(baseTags: _*) // up to 4 elements Map preserves order?
-    else ListMap((baseTags ++ extraTags ++ entity.tags).sortBy(_._1): _*)
+    val entityTags = if (entity.category == "trace-segment") entity.tags - "category" else entity.tags
+    if (extraTags.isEmpty && entityTags.isEmpty) Map(baseTags: _*) // up to 4 elements Map preserves order?
+    else ListMap((baseTags ++ extraTags ++ entityTags).sortBy(_._1): _*)
   }
 
   protected def histogramValues(hs: Histogram.Snapshot): Map[String, BigDecimal] = {
