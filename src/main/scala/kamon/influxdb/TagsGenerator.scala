@@ -20,8 +20,10 @@ import java.lang.management.ManagementFactory
 
 import com.typesafe.config.Config
 import kamon.metric.instrument.Histogram
-import kamon.metric.{ Entity, MetricKey }
+import kamon.metric.{Entity, MetricKey}
+
 import collection.JavaConversions._
+import scala.collection.immutable.ListMap
 
 trait TagsGenerator {
   protected val config: Config
@@ -47,8 +49,8 @@ trait TagsGenerator {
     case (k, v: AnyRef) => throw new IllegalArgumentException(s"Unsupported tag value type ${v.getClass.getName} for tag $k")
   }
 
-  protected def generateTags(entity: Entity, metricKey: MetricKey): Seq[(String, String)] =
-    (entity.category match {
+  protected def generateTags(entity: Entity, metricKey: MetricKey): Map[String, String] = {
+    val baseTags = entity.category match {
       case "trace-segment" ⇒
         Seq(
           "category" -> normalize(entity.tags("trace")),
@@ -63,7 +65,10 @@ trait TagsGenerator {
           "hostname" -> normalize(hostname),
           "metric" -> normalize(metricKey.name)
         )
-    }) ++ extraTags
+    }
+    if (extraTags.isEmpty && entity.tags.isEmpty) Map(baseTags:_*) // up to 4 elements Map preserves order?
+    else ListMap((baseTags ++ extraTags ++ entity.tags).sortBy(_._1):_*)
+  }
 
   protected def histogramValues(hs: Histogram.Snapshot): Map[String, BigDecimal] = {
     val measurements =
