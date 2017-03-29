@@ -20,7 +20,7 @@ import java.lang.management.ManagementFactory
 
 import com.typesafe.config.Config
 import kamon.metric.instrument.Histogram
-import kamon.metric.{Entity, MetricKey}
+import kamon.metric.{ Entity, MetricKey }
 
 import collection.JavaConversions._
 import scala.collection.immutable.ListMap
@@ -43,31 +43,20 @@ trait TagsGenerator {
   protected val percentiles = config.getDoubleList("percentiles").toList
   protected val includeMeasurements = config.getBoolean("include-measurements")
   protected val extraTags = config.getObject("extra-tags").unwrapped().toSeq.sortBy(_._1).map {
-    case (k, v: String) => (normalize(k), normalize(v))
-    case (k, v: Number) => (normalize(k), normalize(v.toString))
-    case (k, v: java.lang.Boolean) => (normalize(k), v.toString)
-    case (k, v: AnyRef) => throw new IllegalArgumentException(s"Unsupported tag value type ${v.getClass.getName} for tag $k")
+    case (k, v: String)            ⇒ (normalize(k), normalize(v))
+    case (k, v: Number)            ⇒ (normalize(k), normalize(v.toString))
+    case (k, v: java.lang.Boolean) ⇒ (normalize(k), v.toString)
+    case (k, v: AnyRef)            ⇒ throw new IllegalArgumentException(s"Unsupported tag value type ${v.getClass.getName} for tag $k")
   }
 
   protected def generateTags(entity: Entity, metricKey: MetricKey): Map[String, String] = {
-    val baseTags = entity.category match {
-      case "trace-segment" ⇒
-        Seq(
-          "category" -> normalize(entity.tags("trace")),
-          "entity" -> normalize(entity.name),
-          "hostname" -> normalize(hostname),
-          "metric" -> normalize(metricKey.name)
-        )
-      case _ ⇒
-        Seq(
-          "category" -> normalize(entity.category),
-          "entity" -> normalize(entity.name),
-          "hostname" -> normalize(hostname),
-          "metric" -> normalize(metricKey.name)
-        )
-    }
-    if (extraTags.isEmpty && entity.tags.isEmpty) Map(baseTags:_*) // up to 4 elements Map preserves order?
-    else ListMap((baseTags ++ extraTags ++ entity.tags).sortBy(_._1):_*)
+    val baseTags = Seq(
+      "category" -> normalize(entity.category),
+      "entity" -> normalize(entity.name),
+      "hostname" -> normalize(hostname),
+      "metric" -> normalize(metricKey.name))
+    if (extraTags.isEmpty && entity.tags.isEmpty) Map(baseTags: _*) // up to 4 elements Map preserves order?
+    else ListMap((baseTags ++ extraTags ++ entity.tags).sortBy(_._1): _*)
   }
 
   protected def histogramValues(hs: Histogram.Snapshot): Map[String, BigDecimal] = {
