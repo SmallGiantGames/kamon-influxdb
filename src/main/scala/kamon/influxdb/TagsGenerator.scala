@@ -40,7 +40,7 @@ trait TagsGenerator {
 
   protected val percentiles = config.getDoubleList("percentiles").toList
   protected val includeMeasurements = config.getBoolean("include-measurements")
-  protected val extraTags = config.getObject("extraTags").unwrapped().toSeq.sortBy(_._1).map {
+  protected val extraTags = config.getObject("extra-tags").unwrapped().toSeq.sortBy(_._1).map {
     case (k, v: String) => (normalize(k), normalize(v))
     case (k, v: Number) => (normalize(k), normalize(v.toString))
     case (k, v: java.lang.Boolean) => (normalize(k), v.toString)
